@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Learning Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Learning Journey</h1>
+            <p>Node.js Web Development Practice</p>
+        </header>
+
+        <section class="profile">
+            <div class="profile-info">
+                <h2 id="name">John Doe</h2>
+                <p id="title">Web Developer Student</p>
+                <p id="status">Currently learning Node.js and Express</p>
+            </div>
+        </section>
+
+        <section class="dynamic-content">
+            <h3>Server Data (This updates on refresh)</h3>
+            <div id="serverData">
+                <p>Loading server data...</p>
+            </div>
+            <button onclick="loadServerData()">Refresh Server Data</button>
+        </section>
+
+        <section class="update-section">
+            <h3>Update Your Profile (Temporary - will reset on refresh)</h3>
+            <div class="update-form">
+                <input type="text" id="newName" placeholder="Enter new name">
+                <input type="text" id="newTitle" placeholder="Enter new title">
+                <button onclick="updateProfile()">Update Profile</button>
+            </div>
+            <div id="updateResult"></div>
+        </section>
+
+        <section class="learning-log">
+            <h3>What I'm Learning Today</h3>
+            <ul>
+                <li>Node.js server setup</li>
+                <li>Express routing</li>
+                <li>Static file serving</li>
+                <li>API endpoints</li>
+                <li>Client-server communication</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>This page demonstrates how server-side and client-side code work together.</p>
+            <p><strong>Note:</strong> Updates made through the form will be lost when you refresh the page!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Load server data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadServerData();
+        });
+
+        // Function to load data from server
+        async function loadServerData() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                document.getElementById('serverData').innerHTML = `
+                    <p><strong>Message:</strong> ${data.message}</p>
+                    <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                    <p><strong>Visitor Count:</strong> ${data.visitorCount}</p>
+                    <p><strong>Status:</strong> ${data.serverStatus}</p>
+                `;
+            } catch (error) {
+                document.getElementById('serverData').innerHTML = 
+                    '<p>Error loading server data</p>';
+            }
+        }
+
+        // Function to update profile (temporary)
+        async function updateProfile() {
+            const newName = document.getElementById('newName').value || 'John Doe';
+            const newTitle = document.getElementById('newTitle').value || 'Web Developer Student';
+            
+            try {
+                const response = await fetch(`/api/update?name=${encodeURIComponent(newName)}&title=${encodeURIComponent(newTitle)}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update the display temporarily
+                    document.getElementById('name').textContent = newName;
+                    document.getElementById('title').textContent = newTitle;
+                    document.getElementById('status').textContent = 'Profile updated - but this will reset on refresh!';
+                    
+                    document.getElementById('updateResult').innerHTML = `
+                        <p style="color: green;">✅ ${result.message}</p>
+                        <p>Updated at: ${result.updatedData.updatedAt}</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('updateResult').innerHTML = 
+                    '<p style="color: red;">Error updating profile</p>';
+            }
+        }
+
+        // Demonstrate that updates are lost on refresh
+        function simulateRefresh() {
+            alert("After refreshing, you'll see that all updates are lost because we're not saving data anywhere!");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
