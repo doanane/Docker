@@ -3,114 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Learning Portfolio</title>
+    <title>My Portfolio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>My Learning Journey</h1>
-            <p>Node.js Web Development Practice</p>
-        </header>
-
-        <section class="profile">
-            <div class="profile-info">
-                <h2 id="name">John Doe</h2>
-                <p id="title">Web Developer Student</p>
-                <p id="status">Currently learning Node.js and Express</p>
-            </div>
-        </section>
-
-        <section class="dynamic-content">
-            <h3>Server Data (This updates on refresh)</h3>
-            <div id="serverData">
-                <p>Loading server data...</p>
-            </div>
-            <button onclick="loadServerData()">Refresh Server Data</button>
-        </section>
-
-        <section class="update-section">
-            <h3>Update Your Profile (Temporary - will reset on refresh)</h3>
-            <div class="update-form">
-                <input type="text" id="newName" placeholder="Enter new name">
-                <input type="text" id="newTitle" placeholder="Enter new title">
-                <button onclick="updateProfile()">Update Profile</button>
-            </div>
-            <div id="updateResult"></div>
-        </section>
-
-        <section class="learning-log">
-            <h3>What I'm Learning Today</h3>
-            <ul>
-                <li>Node.js server setup</li>
-                <li>Express routing</li>
-                <li>Static file serving</li>
-                <li>API endpoints</li>
-                <li>Client-server communication</li>
+    <header>
+        <nav>
+            <div class="logo">MyPortfolio</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
             </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <img src="images/profile.jpg" alt="Profile Picture" class="profile-img">
+                <h1>Hello, I'm <span class="highlight" id="heroName">Your Name</span></h1>
+                <p id="heroTitle">Web Developer & Docker Enthusiast</p>
+                <p id="heroLocation" class="location"></p>
+                <div class="visitor-count">Visitors: <span id="visitorCount">0</span></div>
+                <button class="cta-button" onclick="loadPortfolioData()">Load My Data from MongoDB</button>
+            </div>
         </section>
 
-        <footer>
-            <p>This page demonstrates how server-side and client-side code work together.</p>
-            <p><strong>Note:</strong> Updates made through the form will be lost when you refresh the page!</p>
-        </footer>
-    </div>
+        <section id="about" class="about">
+            <h2>About Me</h2>
+            <div class="about-content">
+                <p id="bio">I'm a passionate web developer learning Docker and modern web technologies.</p>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Location:</strong>
+                        <span id="location">Your City, Country</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Email:</strong>
+                        <span id="email">your.email@example.com</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Experience:</strong>
+                        <span id="experience">2+ years</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="skills">
+            <h2>Skills & Technologies</h2>
+            <div class="skills-grid" id="skills-container">
+                <div class="skill-item">Loading skills...</div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects">
+            <h2>My Projects</h2>
+            <div class="projects-grid" id="projects-container">
+                <div class="project-card">Loading projects...</div>
+            </div>
+        </section>
+
+        <!-- Update Section -->
+        <section class="update-section">
+            <h2>Update Your Profile (Saved in MongoDB!)</h2>
+            <div class="update-form">
+                <input type="text" id="updateName" placeholder="Your Name">
+                <input type="text" id="updateTitle" placeholder="Your Title">
+                <input type="text" id="updateLocation" placeholder="Your Location">
+                <input type="email" id="updateEmail" placeholder="Your Email">
+                <textarea id="updateBio" placeholder="Your Bio"></textarea>
+                <button onclick="updateProfile()" class="update-btn">Save to Database</button>
+                <button onclick="refreshPage()" class="refresh-btn">Refresh Page</button>
+            </div>
+            <div id="updateResult" class="result-message"></div>
+            <p class="note">💡 <strong>Note:</strong> These updates are now saved in MongoDB! Refresh the page to see they persist.</p>
+        </section>
+
+        <!-- Add Project Section -->
+        <section class="add-project">
+            <h2>Add New Project</h2>
+            <div class="project-form">
+                <input type="text" id="projectName" placeholder="Project Name">
+                <textarea id="projectDescription" placeholder="Project Description"></textarea>
+                <button onclick="addProject()" class="add-btn">Add Project</button>
+            </div>
+            <div id="projectResult" class="result-message"></div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2>Get In Touch</h2>
+            <form class="contact-form" onsubmit="submitContactForm(event)">
+                <input type="text" id="contactName" placeholder="Your Name" required>
+                <input type="email" id="contactEmail" placeholder="Your Email" required>
+                <textarea id="contactMessage" placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 My Portfolio. Built with Node.js, MongoDB & Docker.</p>
+        <p class="db-status">Database Status: <span id="dbStatus">Checking...</span></p>
+    </footer>
 
     <script>
-        // Load server data when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadServerData();
-        });
-
-        // Function to load data from server
-        async function loadServerData() {
+        // Load portfolio data from MongoDB
+        async function loadPortfolioData() {
             try {
-                const response = await fetch('/api/data');
+                const response = await fetch('/api/portfolio');
                 const data = await response.json();
                 
-                document.getElementById('serverData').innerHTML = `
-                    <p><strong>Message:</strong> ${data.message}</p>
-                    <p><strong>Timestamp:</strong> ${data.timestamp}</p>
-                    <p><strong>Visitor Count:</strong> ${data.visitorCount}</p>
-                    <p><strong>Status:</strong> ${data.serverStatus}</p>
-                `;
+                updateUI(data);
+                loadVisitorCount();
+                checkDatabaseStatus();
+                
             } catch (error) {
-                document.getElementById('serverData').innerHTML = 
-                    '<p>Error loading server data</p>';
+                console.error('Error loading portfolio data:', error);
+                document.getElementById('skills-container').innerHTML = 
+                    '<div class="skill-item">Error loading data</div>';
             }
         }
 
-        // Function to update profile (temporary)
+        // Update UI with data
+        function updateUI(data) {
+            // Hero section
+            document.getElementById('heroName').textContent = data.name;
+            document.getElementById('heroTitle').textContent = data.title;
+            document.getElementById('heroLocation').textContent = data.location;
+            document.getElementById('bio').textContent = data.bio;
+
+            // About section
+            document.getElementById('location').textContent = data.location;
+            document.getElementById('email').textContent = data.email;
+            document.getElementById('experience').textContent = data.experience;
+
+            // Skills section
+            const skillsContainer = document.getElementById('skills-container');
+            skillsContainer.innerHTML = data.skills.map(skill => 
+                `<div class="skill-item">${skill}</div>`
+            ).join('');
+
+            // Projects section
+            const projectsContainer = document.getElementById('projects-container');
+            projectsContainer.innerHTML = data.projects.map(project => `
+                <div class="project-card">
+                    <h3>${project.name}</h3>
+                    <p>${project.description}</p>
+                    <small>Added: ${new Date(project.createdAt).toLocaleDateString()}</small>
+                </div>
+            `).join('');
+        }
+
+        // Update profile in MongoDB
         async function updateProfile() {
-            const newName = document.getElementById('newName').value || 'John Doe';
-            const newTitle = document.getElementById('newTitle').value || 'Web Developer Student';
-            
+            const name = document.getElementById('updateName').value;
+            const title = document.getElementById('updateTitle').value;
+            const location = document.getElementById('updateLocation').value;
+            const email = document.getElementById('updateEmail').value;
+            const bio = document.getElementById('updateBio').value;
+
             try {
-                const response = await fetch(`/api/update?name=${encodeURIComponent(newName)}&title=${encodeURIComponent(newTitle)}`);
+                const response = await fetch('/api/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, title, location, email, bio })
+                });
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    // Update the display temporarily
-                    document.getElementById('name').textContent = newName;
-                    document.getElementById('title').textContent = newTitle;
-                    document.getElementById('status').textContent = 'Profile updated - but this will reset on refresh!';
+                    document.getElementById('updateResult').innerHTML = 
+                        `<p style="color: green;">✅ ${result.message}</p>`;
                     
-                    document.getElementById('updateResult').innerHTML = `
-                        <p style="color: green;">✅ ${result.message}</p>
-                        <p>Updated at: ${result.updatedData.updatedAt}</p>
-                    `;
+                    // Reload data to show updates
+                    loadPortfolioData();
+                    
+                    // Clear form
+                    document.getElementById('updateName').value = '';
+                    document.getElementById('updateTitle').value = '';
+                    document.getElementById('updateLocation').value = '';
+                    document.getElementById('updateEmail').value = '';
+                    document.getElementById('updateBio').value = '';
+                } else {
+                    document.getElementById('updateResult').innerHTML = 
+                        `<p style="color: red;">❌ ${result.error}</p>`;
                 }
             } catch (error) {
                 document.getElementById('updateResult').innerHTML = 
-                    '<p style="color: red;">Error updating profile</p>';
+                    '<p style="color: red;">❌ Error updating profile</p>';
             }
         }
 
-        // Demonstrate that updates are lost on refresh
-        function simulateRefresh() {
-            alert("After refreshing, you'll see that all updates are lost because we're not saving data anywhere!");
+        // Add new project
+        async function addProject() {
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+
+            if (!name || !description) {
+                document.getElementById('projectResult').innerHTML = 
+                    '<p style="color: orange;">⚠️ Please fill all fields</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('projectResult').innerHTML = 
+                        `<p style="color: green;">✅ ${result.message}</p>`;
+                    
+                    // Reload data to show new project
+                    loadPortfolioData();
+                    
+                    // Clear form
+                    document.getElementById('projectName').value = '';
+                    document.getElementById('projectDescription').value = '';
+                }
+            } catch (error) {
+                document.getElementById('projectResult').innerHTML = 
+                    '<p style="color: red;">❌ Error adding project</p>';
+            }
+        }
+
+        // Load visitor count
+        async function loadVisitorCount() {
+            try {
+                const response = await fetch('/api/visitor-count');
+                const data = await response.json();
+                document.getElementById('visitorCount').textContent = data.visitorCount;
+            } catch (error) {
+                console.error('Error loading visitor count:', error);
+            }
+        }
+
+        // Check database status
+        async function checkDatabaseStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                document.getElementById('dbStatus').textContent = data.database;
+                document.getElementById('dbStatus').style.color = data.status === 'OK' ? 'green' : 'red';
+            } catch (error) {
+                document.getElementById('dbStatus').textContent = 'Disconnected';
+                document.getElementById('dbStatus').style.color = 'red';
+            }
+        }
+
+        // Contact form handler
+        async function submitContactForm(event) {
+            event.preventDefault();
+            alert('Thank you for your message! This would be saved in MongoDB in a real application.');
+            event.target.reset();
+        }
+
+        // Refresh page
+        function refreshPage() {
             location.reload();
         }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadPortfolioData);
     </script>
 </body>
 </html>
